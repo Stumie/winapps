@@ -5,7 +5,6 @@
   freerdp,
   dialog,
   libnotify,
-  netcat,
   iproute2,
   writeShellScriptBin,
   nix-filter ? throw "Pass github:numtide/nix-filter as an argument!",
@@ -33,7 +32,6 @@ stdenv.mkDerivation rec {
     (writeShellScriptBin "xfreerdp3" ''${lib.getExe' freerdp "xfreerdp"} "$@"'')
     libnotify
     dialog
-    netcat
     iproute2
   ];
 

@@ -584,7 +584,7 @@ function waCheckPortOpen() {
     fi
 
     # Check for an open RDP port.
-    timeout 10 nc -z "$RDP_IP" "$RDP_PORT" &>/dev/null || waThrowExit "$EC_BAD_PORT"
+    timeout 10 bash -c "echo > /dev/tcp/$RDP_IP/$RDP_PORT" &>/dev/null || waThrowExit "$EC_BAD_PORT"
 }
 
 # Name: 'waRunCommand'
