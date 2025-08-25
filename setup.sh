@@ -475,7 +475,7 @@ function waLoadConfig() {
         # Display the suggested action(s).
         echo "--------------------------------------------------------------------------------"
         echo -e "Please create a configuration file at ${COMMAND_TEXT}${CONFIG_PATH}${CLEAR_TEXT}."
-        echo -e "See https://github.com/winapps-org/winapps?tab=readme-ov-file#step-3-create-a-winapps-configuration-file"
+        echo -e "See https://github.com/Stumie/winapps_fedora_kinoite?tab=readme-ov-file#step-3-create-a-winapps-configuration-file"
         echo "--------------------------------------------------------------------------------"
 
         # Terminate the script.

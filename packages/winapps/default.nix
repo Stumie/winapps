@@ -66,7 +66,7 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with lib; {
-    homepage = "https://github.com/winapps-org/winapps";
+    homepage = "https://github.com/Stumie/winapps_fedora_kinoite";
     description = "Run Windows applications (including Microsoft 365 and Adobe Creative Cloud) on GNU/Linux with KDE, GNOME or XFCE, integrated seamlessly as if they were native to the OS. Wayland is currently unsupported.";
     mainProgram = "winapps";
     platforms = platforms.linux;

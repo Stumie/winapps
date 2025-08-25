@@ -681,7 +681,7 @@ However, if you still don't want to use flakes, you can use WinApps with flake-c
   environment.systemPackages =
     let
       winapps =
-        (import (builtins.fetchTarball "https://github.com/winapps-org/winapps/archive/main.tar.gz"))
+        (import (builtins.fetchTarball "https://github.com/Stumie/winapps_fedora_kinoite/archive/main.tar.gz"))
         .packages."${system}";
     in
     [
