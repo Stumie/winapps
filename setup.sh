@@ -541,24 +541,24 @@ function waCheckScriptDependencies() {
         return "$EC_MISSING_DEPS"
     fi
 
-    # 'Dialog'.
-    if ! command -v dialog &>/dev/null; then
+    # 'kdialog'.
+    if ! command -v kdialog &>/dev/null; then
         # Display the error type.
         echo -e "${ERROR_TEXT}ERROR:${CLEAR_TEXT} ${BOLD_TEXT}MISSING DEPENDENCIES.${CLEAR_TEXT}"
 
         # Display the error details.
-        echo -e "${INFO_TEXT}Please install 'dialog' to proceed.${CLEAR_TEXT}"
+        echo -e "${INFO_TEXT}Please install 'kdialog' to proceed.${CLEAR_TEXT}"
 
         # Display the suggested action(s).
         echo "--------------------------------------------------------------------------------"
         echo "Debian/Ubuntu-based systems:"
-        echo -e "  ${COMMAND_TEXT}sudo apt install dialog${CLEAR_TEXT}"
+        echo -e "  ${COMMAND_TEXT}sudo apt install kdialog${CLEAR_TEXT}"
         echo "Red Hat/Fedora-based systems:"
-        echo -e "  ${COMMAND_TEXT}sudo dnf install dialog${CLEAR_TEXT}"
+        echo -e "  ${COMMAND_TEXT}sudo dnf install kdialog${CLEAR_TEXT}"
         echo "Arch Linux systems:"
-        echo -e "  ${COMMAND_TEXT}sudo pacman -S dialog${CLEAR_TEXT}"
+        echo -e "  ${COMMAND_TEXT}sudo pacman -S kdialog${CLEAR_TEXT}"
         echo "Gentoo Linux systems:"
-        echo -e "  ${COMMAND_TEXT}sudo emerge --ask dialog${CLEAR_TEXT}"
+        echo -e "  ${COMMAND_TEXT}sudo emerge --ask kde-apps/kdialog${CLEAR_TEXT}"
         echo "--------------------------------------------------------------------------------"
 
         # Terminate the script.

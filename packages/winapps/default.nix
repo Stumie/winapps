@@ -3,7 +3,7 @@
   lib,
   makeWrapper,
   freerdp,
-  dialog,
+  kdialog,
   libnotify,
   iproute2,
   writeShellScriptBin,
@@ -31,7 +31,7 @@ stdenv.mkDerivation rec {
   buildInputs = [
     (writeShellScriptBin "xfreerdp3" ''${lib.getExe' freerdp "xfreerdp"} "$@"'')
     libnotify
-    dialog
+    kdialog
     iproute2
   ];
 
