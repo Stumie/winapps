@@ -158,7 +158,7 @@ function waGetSourceCode() {
     fi
 
     if [[ ! -d "$SOURCE_PATH" ]]; then
-        $SUDO git clone --recurse-submodules --remote-submodules https://github.com/winapps-org/winapps.git "$SOURCE_PATH"
+        $SUDO git clone --recurse-submodules --remote-submodules https://github.com/Stumie/winapps_fedora_kinoite.git "$SOURCE_PATH"
     else
         echo -e "${INFO_TEXT}WinApps installation already present at ${CLEAR_TEXT}${COMMAND_TEXT}${SOURCE_PATH}${CLEAR_TEXT}${INFO_TEXT}. Updating...${CLEAR_TEXT}"
         $SUDO git -C "$SOURCE_PATH" pull --no-rebase
