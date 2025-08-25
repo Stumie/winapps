@@ -308,7 +308,7 @@ Install the required dependencies.
 
   - Fedora/RHEL:
       ```bash
-      sudo dnf install -y curl dialog freerdp git iproute libnotify nmap-ncat
+      sudo dnf install -y curl dialog freerdp git iproute libnotify
       ```
   - Arch Linux:
       ```bash
