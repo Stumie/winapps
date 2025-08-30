@@ -94,6 +94,13 @@ cd winapps
 podman-compose --file ./compose.yaml up
 ```
 
+Alternatively you can use the script `start-windows-in-rootless-podman-without-podman-compose.sh`.
+It can start, like its name suggests, a rootless podman container with Windows running without podman-compose.
+```bash
+cd winapps
+./start-windows-in-rootless-podman-without-podman-compose.sh
+```
+
 You can then access the Windows virtual machine via a VNC connection to complete the Windows setup by navigating to http://127.0.0.1:8006 in your web browser.
 
 ### Changing `compose.yaml`

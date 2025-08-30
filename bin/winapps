@@ -726,9 +726,9 @@ function waCheckIdle() {
             dprint "IDLE FOR ${AUTOPAUSE_TIME} SECONDS. SUSPENDING WINDOWS."
             notify-send --expire-time=8000 --icon="info" --app-name="WinApps" --urgency="low" "WinApps" "Pausing Windows due to inactivity."
             if [ "$WAFLAVOR" = "docker" ]; then
-                docker compose --file "$COMPOSE_PATH" pause &>/dev/null
+                docker pause WinApps &>/dev/null
             elif [ "$WAFLAVOR" = "podman" ]; then
-                podman-compose --file "$COMPOSE_PATH" pause &>/dev/null
+                podman pause WinApps &>/dev/null
             elif [ "$WAFLAVOR" = "libvirt" ]; then
                 virsh suspend "$VM_NAME" &>/dev/null
             fi

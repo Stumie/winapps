@@ -743,7 +743,7 @@ function waCheckInstallDependencies() {
             return "$EC_MISSING_DEPS"
         fi
     elif [ "$WAFLAVOR" = "podman" ]; then
-        if ! command -v podman-compose &>/dev/null || ! command -v podman &>/dev/null; then
+        if ! command -v podman &>/dev/null; then
             # Complete the previous line.
             echo -e "${FAIL_TEXT}Failed!${CLEAR_TEXT}\n"
 
@@ -751,7 +751,7 @@ function waCheckInstallDependencies() {
             echo -e "${ERROR_TEXT}ERROR:${CLEAR_TEXT} ${BOLD_TEXT}MISSING DEPENDENCIES.${CLEAR_TEXT}"
 
             # Display the error details.
-            echo -e "${INFO_TEXT}Please install 'podman' and 'podman-compose' to proceed.${CLEAR_TEXT}"
+            echo -e "${INFO_TEXT}Please install 'podman' to proceed.${CLEAR_TEXT}"
 
             # Display the suggested action(s).
             echo "--------------------------------------------------------------------------------"
