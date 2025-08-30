@@ -553,7 +553,7 @@ BOOT_TIMEOUT="120"
 With Windows still powered on, run the WinApps installer.
 
 ```bash
-bash <(curl https://raw.githubusercontent.com/winapps-org/winapps/main/setup.sh)
+bash <(curl https://raw.githubusercontent.com/Stumie/winapps_fedora_kinoite/main/setup.sh)
 ```
 
 Once WinApps is installed, a list of additional arguments can be accessed by running `winapps-setup --help`.
@@ -603,8 +603,8 @@ experimental-features = nix-command flakes
 ```
 
 ```bash
-nix profile install github:winapps-org/winapps#winapps
-nix profile install github:winapps-org/winapps#winapps-launcher # optional
+nix profile install github:Stumie/winapps_fedora_kinoite#winapps
+nix profile install github:Stumie/winapps_fedora_kinoite#winapps-launcher # optional
 ```
 
 ### On NixOS using Flakes
@@ -618,7 +618,7 @@ nix profile install github:winapps-org/winapps#winapps-launcher # optional
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     winapps = {
-      url = "github:winapps-org/winapps";
+      url = "github:Stumie/winapps_fedora_kinoite";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -692,10 +692,10 @@ However, if you still don't want to use flakes, you can use WinApps with flake-c
 ```
 
 ## Star History
-<a href="https://star-history.com/#winapps-org/winapps&Date">
+<a href="https://star-history.com/#Stumie/winapps_fedora_kinoite&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=winapps-org/winapps&type=Date&theme=dark"/>
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=winapps-org/winapps&type=Date"/>
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=winapps-org/winapps&type=Date"/>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Stumie/winapps_fedora_kinoite&type=Date&theme=dark"/>
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Stumie/winapps_fedora_kinoite&type=Date"/>
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Stumie/winapps_fedora_kinoite&type=Date"/>
  </picture>
 </a>
