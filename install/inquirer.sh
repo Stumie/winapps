@@ -5,108 +5,67 @@
 # SPDX-License-Identifier: MIT
 # For original source, see https://github.com/kahkhang/Inquirer.sh
 
-# Replaced original functions with 'dialog' by a 'kdialog' variant envisioned from Google Gemini 2.5 Flash.
+# Replaced original functions with 'dialog' by a 'kdialog' variant envisioned from ChatGPT
 
 ### GLOBAL CONSTANTS ###
-declare -r ANSI_LIGHT_BLUE="\033[1;94m" # Light blue text.
-declare -r ANSI_LIGHT_GREEN="\033[92m"  # Light green text.
-declare -r ANSI_CLEAR_TEXT="\033[0m"    # Default text.
+declare -r ANSI_LIGHT_BLUE="\033[1;94m"
+declare -r ANSI_LIGHT_GREEN="\033[92m"
+declare -r ANSI_CLEAR_TEXT="\033[0m"
 
 ### FUNCTIONS ###
 function inqMenu() {
-    # DECLARE VARIABLES.
-    # Variables created from function arguments:
-    declare DIALOG_TEXT="$1"                      # Dialog heading.
-    declare INPUT_OPTIONS_VAR="$2"                # Input variable name.
-    declare RETURN_STRING_VAR="$3"                # Output variable name.
-    declare -n INPUT_OPTIONS="$INPUT_OPTIONS_VAR" # Input array nameref.
-    declare -n RETURN_STRING="$RETURN_STRING_VAR" # Output string nameref.
+    declare DIALOG_TEXT="$1"
+    declare INPUT_OPTIONS_VAR="$2"
+    declare RETURN_STRING_VAR="$3"
+    declare -n INPUT_OPTIONS="$INPUT_OPTIONS_VAR"
+    declare -n RETURN_STRING="$RETURN_STRING_VAR"
 
-    # Other variables:
-    declare DIALOG_OPTIONS=()          # Input array for options dialog.
-    declare SELECTED_OPTIONS_STRING="" # Output value from kdialog.
-
-    # MAIN LOGIC.
-    # The original script prepares padded options for `dialog`.
-    # kdialog doesn't need this, so we can directly use the trimmed options.
+    # Menüeinträge vorbereiten (key1 label1 key2 label2 ...)
+    declare DIALOG_OPTIONS=()
+    local i=1
     for OPTION in "${INPUT_OPTIONS[@]}"; do
-        TRIMMED_OPTIONS+=("$(echo "$OPTION" | sed 's/^[ \t]*//;s/[ \t]*$//')")
-    done
-    
-    # kdialog expects a list of options, typically as separate arguments.
-    # The --menu option takes a text label and then a list of items.
-    # We will use the --radiolist option which is a better match for a single-choice menu.
-    for OPTION in "${TRIMMED_OPTIONS[@]}"; do
-        DIALOG_OPTIONS+=("" "$OPTION" off)
+        local TRIMMED="$(echo "$OPTION" | sed 's/^[ \t]*//;s/[ \t]*$//')"
+        DIALOG_OPTIONS+=("$i" "$TRIMMED")
+        ((i++))
     done
 
-    # Produce menu dialog using kdialog.
-    # The output is captured from stdout.
-    SELECTED_OPTIONS_STRING=$(kdialog \
-        --title "Selection" \
-        --radiolist "$DIALOG_TEXT" \
-        "${DIALOG_OPTIONS[@]}" \
-        2>&1)
+    # Menü anzeigen
+    local SELECTED_KEY
+    SELECTED_KEY=$(kdialog --menu "$DIALOG_TEXT" "${DIALOG_OPTIONS[@]}") || exit 0
 
-    # If the user cancelled, exit.
-    if [ $? -ne 0 ]; then
-        exit 0
-    fi
+    # Rückgabe-Index in tatsächliche Option umwandeln
+    RETURN_STRING="${INPUT_OPTIONS[$((SELECTED_KEY - 1))]}"
 
-    # Set the return variable.
-    RETURN_STRING="$SELECTED_OPTIONS_STRING"
-    
-    # Display question and response.
+    # Ausgabe
     echo -e "${ANSI_LIGHT_GREEN}Q) ${ANSI_CLEAR_TEXT}${ANSI_LIGHT_BLUE}${DIALOG_TEXT}${ANSI_CLEAR_TEXT} --> ${ANSI_LIGHT_GREEN}${RETURN_STRING}${ANSI_CLEAR_TEXT}"
 }
 
 function inqChkBx() {
-    # DECLARE VARIABLES.
-    # Variables created from function arguments:
-    declare DIALOG_TEXT="$1"                      # Dialog heading.
-    declare INPUT_OPTIONS_VAR="$2"                # Input variable name.
-    declare RETURN_ARRAY_VAR="$3"                 # Output variable name.
-    declare -n INPUT_OPTIONS="$INPUT_OPTIONS_VAR" # Input array nameref.
-    declare -n RETURN_ARRAY="$RETURN_ARRAY_VAR"   # Output array nameref.
+    declare DIALOG_TEXT="$1"
+    declare INPUT_OPTIONS_VAR="$2"
+    declare RETURN_ARRAY_VAR="$3"
+    declare -n INPUT_OPTIONS="$INPUT_OPTIONS_VAR"
+    declare -n RETURN_ARRAY="$RETURN_ARRAY_VAR"
 
-    # Other variables:
-    declare DIALOG_OPTIONS=()          # Input array for options dialog.
-    declare SELECTED_OPTIONS_STRING="" # Output value from kdialog.
-
-    # MAIN LOGIC.
-    # kdialog doesn't need the options to be padded. We'll build the options array directly.
+    # Checkliste vorbereiten
+    declare DIALOG_OPTIONS=()
+    local i=1
     for OPTION in "${INPUT_OPTIONS[@]}"; do
-        TRIMMED_OPTIONS+=("$(echo "$OPTION" | sed 's/^[ \t]*//;s/[ \t]*$//')")
-    done
-    
-    # kdialog --checklist expects a list of tags, items, and statuses.
-    for OPTION in "${TRIMMED_OPTIONS[@]}"; do
-        DIALOG_OPTIONS+=("" "$OPTION" off)
+        local TRIMMED="$(echo "$OPTION" | sed 's/^[ \t]*//;s/[ \t]*$//')"
+        DIALOG_OPTIONS+=("$i" "$TRIMMED" "off")
+        ((i++))
     done
 
-    # Produce checkbox dialog using kdialog.
-    SELECTED_OPTIONS_STRING=$(kdialog \
-        --title "Selection" \
-        --checklist "$DIALOG_TEXT" \
-        "${DIALOG_OPTIONS[@]}" \
-        2>&1)
+    # Checkliste anzeigen
+    local SELECTED_KEYS
+    SELECTED_KEYS=$(kdialog --checklist "$DIALOG_TEXT" "${DIALOG_OPTIONS[@]}") || exit 0
 
-    # If the user cancelled, exit.
-    if [ $? -ne 0 ]; then
-        exit 0
-    fi
-
-    # Convert the output string into an array. kdialog returns selected items as a space-separated string.
-    # We must properly handle spaces within the option names themselves. kdialog encloses each item in quotes.
-    # For example: '"Option 1" "The Second Option" "Option 3"'.
-    # We need to parse this string into an array.
-    IFS=$'\n' read -d '' -r -a RETURN_ARRAY < <(echo "$SELECTED_OPTIONS_STRING" | sed 's/\" \"/\"\n\"/g' | tr -d '"')
-
-    # Final modifications.
-    for ((i = 0; i < ${#RETURN_ARRAY[@]}; i++)); do
-        # kdialog does not introduce escapes like dialog, so no need to remove them.
-        # We also don't need to trim whitespace, as the parsing handles this.
-        # The logic is simpler.
-        : # This is a placeholder for any future modifications, no action needed here.
+    # Rückgabe in tatsächliche Optionen umwandeln
+    IFS=" " read -r -a KEYS <<< "$SELECTED_KEYS"
+    for KEY in "${KEYS[@]}"; do
+        RETURN_ARRAY+=("${INPUT_OPTIONS[$((KEY - 1))]}")
     done
+
+    # Ausgabe
+    echo -e "${ANSI_LIGHT_GREEN}Q) ${ANSI_CLEAR_TEXT}${ANSI_LIGHT_BLUE}${DIALOG_TEXT}${ANSI_CLEAR_TEXT} --> ${ANSI_LIGHT_GREEN}${RETURN_ARRAY[*]}${ANSI_CLEAR_TEXT}"
 }
