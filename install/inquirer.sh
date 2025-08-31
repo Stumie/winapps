@@ -66,5 +66,28 @@ function inqChkBx() {
     # Show checklist
     local SELECTED_KEYS
     # 2>&1 >/dev/tty redirects kdialog's output to be correctly captured in SELECTED_KEYS
-    SELECTED_KEYS=$(kdialog --checklist "$DIALOG_TEXT" "${DIALOG_OPTIONS[@]}" 2>&1 >/dev/
+    SELECTED_KEYS=$(kdialog --checklist "$DIALOG_TEXT" "${DIALOG_OPTIONS[@]}" 2>&1 >/dev/tty)
+    
+    # Check if the dialog was cancelled
+    if [[ $? -ne 0 ]]; then
+        echo "Dialog was cancelled." >&2
+        return 1
+    fi
+
+    # Load the selected keys (numbers) into an array
+    # IFS=" " ensures spaces are used as a delimiter
+    local -a KEYS
+    IFS=" " read -r -a KEYS <<< "$SELECTED_KEYS"
+
+    # Clear the return array to remove old values
+    RETURN_ARRAY_REF=()
+    
+    # Find and add the actual options based on the keys
+    for KEY in "${KEYS[@]}"; do
+        RETURN_ARRAY_REF+=("${INPUT_OPTIONS_REF[$((KEY - 1))]}")
+    done
+
+    # Output
+    echo -e "${ANSI_LIGHT_GREEN}Q) ${ANSI_CLEAR_TEXT}${ANSI_LIGHT_BLUE}${DIALOG_TEXT}${ANSI_CLEAR_TEXT} --> ${ANSI_LIGHT_GREEN}${RETURN_ARRAY_REF[*]}${ANSI_CLEAR_TEXT}"
+    return 0
 }
