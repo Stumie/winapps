@@ -306,7 +306,11 @@ Install the required dependencies.
 > On Debian 12 (_"bookworm"_), you need to enable the `backports` repository for the `freerdp3-x11` package to become available.
 > For instructions, see https://backports.debian.org/Instructions.
 
-  - Fedora/RHEL:
+  - Fedora Kinoite:
+      ```bash
+      echo "You're fine, everything is here. :)"
+      ```
+  - Other, but only non-atomic Fedora/RHEL:
       ```bash
       sudo dnf install -y curl kdialog freerdp git iproute libnotify
       ```
