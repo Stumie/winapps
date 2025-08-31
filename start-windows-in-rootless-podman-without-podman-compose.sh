@@ -52,7 +52,6 @@ if [[ "$CONTAINER_STATE" != "up" ]]; then
             --device=/dev/net/tun \
             --network pasta:-t,127.0.0.1/8006:8006,-t,127.0.0.1/3389:3389,-u,127.0.0.1/3389:3389 \
             -v "data:/storage:z" \
-            -v "${HOME}:/shared" \
             -v "$SCRIPT_DIR_PATH/oem:/oem:z" \
             --stop-timeout 120 \
             --uidmap "+0:@$(id -u)" \
