@@ -27,7 +27,7 @@ install-yq-into-user-directory
 readonly SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 readonly CONFIG_PATH="${HOME}/.config/winapps/winapps.conf"
 
-if [ -f "$CONFIG_PATH" ]
+if [ -f "${HOME}/.config/winapps/compose.yaml" ]
 then
     readonly COMPOSE_PATH="${HOME}/.config/winapps/compose.yaml"
 else
