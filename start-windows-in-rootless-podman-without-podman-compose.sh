@@ -34,7 +34,9 @@ else
     readonly COMPOSE_PATH="${SCRIPT_DIR_PATH}/compose.yaml"
 fi
 
-CONTAINER_NAME="$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')"
+readonly CONTAINER_NAME="$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')"
+readonly WINREGION="${LANG%.*}"
+readonly WINKEYBOARD="${LANG%.*}"
 CONTAINER_STATE=""
 CONTAINER_STATE=$(podman ps --all --filter name="$CONTAINER_NAME" --format '{{.Status}}')
 CONTAINER_STATE=${CONTAINER_STATE,,}
@@ -42,8 +44,6 @@ CONTAINER_STATE=${CONTAINER_STATE%% *}
 
 if [[ "$CONTAINER_STATE" != "up" ]]; then
     if [[ "$(podman ps --all --filter name="$CONTAINER_NAME" --format '{{.Names}}')" != "$CONTAINER_NAME" ]]; then
-        winregion="${LANG%.*}"
-        winkeyboard="${LANG%.*}"
         podman volume create --ignore data
         podman run \
             -d \
@@ -64,8 +64,8 @@ if [[ "$CONTAINER_STATE" != "up" ]]; then
             -e USERNAME="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.USERNAME')" \
             -e PASSWORD="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.PASSWORD')" \
             -e HOME="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.HOME')" \
-            -e REGION="${winregion//_/-}" \
-            -e KEYBOARD="${winkeyboard//_/-}" \
+            -e REGION="${WINREGION//_/-}" \
+            -e KEYBOARD="${WINKEYBOARD//_/-}" \
             -e NETWORK="user" \
             "$(cat $COMPOSE_PATH | yq -r '.services.windows.image')"
     else
