@@ -17,11 +17,11 @@ check-for-software-existence () {
 }
 
 install-yq-into-user-directory () {
-    wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O ~/.local/bin/yq
+    curl -s -L -z ~/.local/bin/yq "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64" -o ~/.local/bin/yq
     chmod +x ~/.local/bin/yq
 }
 
-check-for-software-existence wget podman
+check-for-software-existence curl podman
 install-yq-into-user-directory
 
 readonly SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
