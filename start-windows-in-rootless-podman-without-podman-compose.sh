@@ -38,13 +38,13 @@ fi
 CONTAINER_STATE=""
 
 # Determine the state of the container.
-CONTAINER_STATE=$(podman ps --all --filter name="WinApps" --format '{{.Status}}')
+CONTAINER_STATE=$(podman ps --all --filter name="$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')" --format '{{.Status}}')
 CONTAINER_STATE=${CONTAINER_STATE,,} # Convert the string to lowercase.
 CONTAINER_STATE=${CONTAINER_STATE%% *} # Extract the first word.
 
 # Check container state.
 if [[ "$CONTAINER_STATE" != "up" ]]; then
-    if [[ "$(podman ps --all --filter name="WinApps" --format '{{.Names}}')" != "$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')" ]]; then
+    if [[ "$(podman ps --all --filter name="$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')" --format '{{.Names}}')" != "$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')" ]]; then
         winregion="${LANG%.*}"
         winkeyboard="${LANG%.*}"
 
