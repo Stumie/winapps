@@ -7,11 +7,12 @@ function inqChkBx() {
     declare -n RETURN_ARRAY="$RETURN_ARRAY_VAR"
 
     # Other variables:
-    declare TRIMMED_OPTIONS=()       # Input array post-trimming.
-    declare DIALOG_OPTIONS=()        # Input array for options dialog.
-    declare DIALOG_WIDTH=0           # Width of dialog window.
-    declare OPTION_NUMBER=0          # Number of options in dialog window.
-    declare SELECTED_OPTIONS_STRING="" # Output value from dialog window.
+    declare TRIMMED_OPTIONS=()
+    declare PADDED_OPTIONS=()
+    declare DIALOG_OPTIONS=()
+    declare DIALOG_WIDTH=0
+    declare OPTION_NUMBER=0
+    declare SELECTED_OPTIONS_STRING=""
 
     # MAIN LOGIC.
     # Trim leading and trailing white space for each option.
@@ -19,44 +20,59 @@ function inqChkBx() {
         TRIMMED_OPTIONS+=("$(echo "$OPTION" | sed 's/^[ \t]*//;s/[ \t]*$//')")
     done
 
-    # Prepare kdialog options (key1 label1 off key2 label2 off ...)
-    local i=1
+    # Find the length of the longest option to set the dialog width.
     for OPTION in "${TRIMMED_OPTIONS[@]}"; do
-        DIALOG_OPTIONS+=("$i" "$OPTION" "off")
+        if [ "${#OPTION}" -gt "$DIALOG_WIDTH" ]; then
+            DIALOG_WIDTH=${#OPTION}
+        fi
+    done
+
+    # Apply the offset value to the dialog width.
+    DIALOG_WIDTH=$((DIALOG_WIDTH + CHK_OPTION_WIDTH_OFFSET))
+
+    # Adjust the dialog width again if the dialog text is longer.
+    if [ "$DIALOG_WIDTH" -lt $((${#DIALOG_TEXT} + TEXT_WIDTH_OFFSET)) ]; then
+        DIALOG_WIDTH="$((${#DIALOG_TEXT} + TEXT_WIDTH_OFFSET))"
+    fi
+
+    # Pad option text with trailing white space to left-align all options.
+    for OPTION in "${TRIMMED_OPTIONS[@]}"; do
+        local PAD_LENGTH=$((DIALOG_WIDTH - CHK_OPTION_WIDTH_OFFSET - ${#OPTION}))
+        local PADDED_OPTION="${OPTION}$(printf '%*s' $PAD_LENGTH)"
+        PADDED_OPTIONS+=("$PADDED_OPTION")
+    done
+
+    # Convert options into the appropriate format for a 'kdialog' checkbox.
+    local i=1
+    for PADDED_OPTION in "${PADDED_OPTIONS[@]}"; do
+        DIALOG_OPTIONS+=("$i" "$PADDED_OPTION" "off")
         ((i++))
     done
 
-    # Show checklist
+    # Produce checkbox.
     local SELECTED_KEYS
     SELECTED_KEYS=$(kdialog --checklist "$DIALOG_TEXT" "${DIALOG_OPTIONS[@]}" 2>&1 >/dev/tty) || return 1
-    
-    # Check if dialog was canceled
-    if [[ $? -ne 0 ]]; then
-        echo "Dialog was cancelled." >&2
-        return 1
-    fi
 
-    # Convert the output from kdialog to the format expected by the original script.
-    local SELECTED_OPTIONS_STRING=""
+    # Convert kdialog output to the format expected by the original dialog script.
+    local FORMATTED_OUTPUT=""
     local -a KEYS
     IFS=" " read -r -a KEYS <<< "$SELECTED_KEYS"
 
     for KEY in "${KEYS[@]}"; do
-        local ORIGINAL_OPTION="${INPUT_OPTIONS[$((KEY - 1))]}"
-        local TRIMMED_OPTION="$(echo "$ORIGINAL_OPTION" | sed 's/^[ \t]*//;s/[ \t]*$//')"
-        SELECTED_OPTIONS_STRING+="\"$TRIMMED_OPTION\" "
+        # Use the padded option string directly, just like the original script.
+        FORMATTED_OUTPUT+="\"${PADDED_OPTIONS[$((KEY - 1))]}\" "
     done
     
-    # Remove the last trailing space.
-    SELECTED_OPTIONS_STRING="${SELECTED_OPTIONS_STRING% }"
+    # Remove the trailing space.
+    FORMATTED_OUTPUT="${FORMATTED_OUTPUT% }"
 
     # Process the formatted output string exactly like the original dialog script.
     RETURN_ARRAY=()
     while IFS= read -r LINE; do
-        LINE="${LINE/#\"/}"      # Remove leading double quote.
-        LINE="${LINE/%\"/}"      # Remove trailing double quote.
-        RETURN_ARRAY+=("$LINE")  # Add to array.
-    done < <(echo "$SELECTED_OPTIONS_STRING" | sed 's/\" \"/\"\n\"/g')
+        LINE="${LINE/#\"/}"
+        LINE="${LINE/%\"/}"
+        RETURN_ARRAY+=("$LINE")
+    done < <(echo "$FORMATTED_OUTPUT" | sed 's/\" \"/\"\n\"/g')
 
     # Final modifications.
     for ((i = 0; i < ${#RETURN_ARRAY[@]}; i++)); do
@@ -67,6 +83,6 @@ function inqChkBx() {
     done
 
     # Display question and response, matching the original format.
-    echo -e "${ANSI_LIGHT_GREEN}Q) ${ANSI_CLEAR_TEXT}${ANSI_LIGHT_BLUE}${DIALOG_TEXT}${ANSI_CLEAR_TEXT} --> ${ANSI_LIGHT_GREEN}${SELECTED_OPTIONS_STRING}${ANSI_CLEAR_TEXT}"
+    echo -e "${ANSI_LIGHT_GREEN}Q) ${ANSI_CLEAR_TEXT}${ANSI_LIGHT_BLUE}${DIALOG_TEXT}${ANSI_CLEAR_TEXT} --> ${ANSI_LIGHT_GREEN}${FORMATTED_OUTPUT}${ANSI_CLEAR_TEXT}"
     return 0
 }
