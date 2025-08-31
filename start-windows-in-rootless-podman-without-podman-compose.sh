@@ -34,9 +34,8 @@ else
     readonly COMPOSE_PATH="${SCRIPT_DIR_PATH}/compose.yaml"
 fi
 
-winlanguage="German"
-winregion="de-DE"
-winkeyboard="de-DE"
+winregion="${LANG%.*}"
+winkeyboard="${LANG%.*}"
 
 podman volume create --ignore data
 podman run \
@@ -59,8 +58,8 @@ podman run \
     -e PASSWORD="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.PASSWORD')" \
     -e HOME="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.HOME')" \
     -e LANGUAGE="$winlanguage" \
-    -e REGION="$winkeyboard" \
-    -e KEYBOARD="$winkeyboard" \
+    -e REGION="${winregion//_/-}" \
+    -e KEYBOARD="${winkeyboard//_/-}" \
     -e NETWORK="user" \
     "$(cat $COMPOSE_PATH | yq -r '.services.windows.image')"
 podman ps --all --filter name="$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')"
