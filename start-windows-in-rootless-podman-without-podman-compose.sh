@@ -34,32 +34,46 @@ else
     readonly COMPOSE_PATH="${SCRIPT_DIR_PATH}/compose.yaml"
 fi
 
-winregion="${LANG%.*}"
-winkeyboard="${LANG%.*}"
+# Declare variables.
+CONTAINER_STATE=""
 
-podman volume create --ignore data
-podman run \
-    -d \
-    --name "$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')" \
-    --device=/dev/kvm \
-    --device=/dev/net/tun \
-    --network pasta:-t,127.0.0.1/8006:8006,-t,127.0.0.1/3389:3389,-u,127.0.0.1/3389:3389 \
-    -v "data:/storage:z" \
-    -v "${HOME}:/shared" \
-    -v "$SCRIPT_DIR_PATH/oem:/oem:z" \
-    --stop-timeout 120 \
-    --uidmap "+0:@$(id -u)" \
-    --restart "$(cat $COMPOSE_PATH | yq -r '.services.windows.restart')" \
-    -e VERSION="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.VERSION')" \
-    -e DISK_SIZE="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.DISK_SIZE')" \
-    -e RAM_SIZE="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.RAM_SIZE')" \
-    -e CPU_CORES="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.CPU_CORES')" \
-    -e USERNAME="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.USERNAME')" \
-    -e PASSWORD="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.PASSWORD')" \
-    -e HOME="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.HOME')" \
-    -e LANGUAGE="$winlanguage" \
-    -e REGION="${winregion//_/-}" \
-    -e KEYBOARD="${winkeyboard//_/-}" \
-    -e NETWORK="user" \
-    "$(cat $COMPOSE_PATH | yq -r '.services.windows.image')"
+# Determine the state of the container.
+CONTAINER_STATE=$(podman ps --all --filter name="WinApps" --format '{{.Status}}')
+CONTAINER_STATE=${CONTAINER_STATE,,} # Convert the string to lowercase.
+CONTAINER_STATE=${CONTAINER_STATE%% *} # Extract the first word.
+
+# Check container state.
+if [[ "$CONTAINER_STATE" != "up" ]]; then
+    if [[ "$(podman ps --all --filter name="WinApps" --format '{{.Names}}')" != "$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')" ]]; then
+        winregion="${LANG%.*}"
+        winkeyboard="${LANG%.*}"
+
+        podman volume create --ignore data
+        podman run \
+            -d \
+            --name "$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')" \
+            --device=/dev/kvm \
+            --device=/dev/net/tun \
+            --network pasta:-t,127.0.0.1/8006:8006,-t,127.0.0.1/3389:3389,-u,127.0.0.1/3389:3389 \
+            -v "data:/storage:z" \
+            -v "${HOME}:/shared" \
+            -v "$SCRIPT_DIR_PATH/oem:/oem:z" \
+            --stop-timeout 120 \
+            --uidmap "+0:@$(id -u)" \
+            --restart "$(cat $COMPOSE_PATH | yq -r '.services.windows.restart')" \
+            -e VERSION="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.VERSION')" \
+            -e DISK_SIZE="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.DISK_SIZE')" \
+            -e RAM_SIZE="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.RAM_SIZE')" \
+            -e CPU_CORES="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.CPU_CORES')" \
+            -e USERNAME="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.USERNAME')" \
+            -e PASSWORD="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.PASSWORD')" \
+            -e HOME="$(cat $COMPOSE_PATH | yq -r '.services.windows.environment.HOME')" \
+            -e REGION="${winregion//_/-}" \
+            -e KEYBOARD="${winkeyboard//_/-}" \
+            -e NETWORK="user" \
+            "$(cat $COMPOSE_PATH | yq -r '.services.windows.image')"
+    else
+        podman restart "$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')"
+    fi
+fi
 podman ps --all --filter name="$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')"
