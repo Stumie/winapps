@@ -34,21 +34,20 @@ else
     readonly COMPOSE_PATH="${SCRIPT_DIR_PATH}/compose.yaml"
 fi
 
+CONTAINER_NAME="$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')"
 CONTAINER_STATE=""
-
-CONTAINER_STATE=$(podman ps --all --filter name="$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')" --format '{{.Status}}')
+CONTAINER_STATE=$(podman ps --all --filter name="$CONTAINER_NAME" --format '{{.Status}}')
 CONTAINER_STATE=${CONTAINER_STATE,,}
 CONTAINER_STATE=${CONTAINER_STATE%% *}
 
 if [[ "$CONTAINER_STATE" != "up" ]]; then
-    if [[ "$(podman ps --all --filter name="$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')" --format '{{.Names}}')" != "$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')" ]]; then
+    if [[ "$(podman ps --all --filter name="$CONTAINER_NAME" --format '{{.Names}}')" != "$CONTAINER_NAME" ]]; then
         winregion="${LANG%.*}"
         winkeyboard="${LANG%.*}"
-
         podman volume create --ignore data
         podman run \
             -d \
-            --name "$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')" \
+            --name "$CONTAINER_NAME" \
             --device=/dev/kvm \
             --device=/dev/net/tun \
             --network pasta:-t,127.0.0.1/8006:8006,-t,127.0.0.1/3389:3389,-u,127.0.0.1/3389:3389 \
@@ -70,7 +69,7 @@ if [[ "$CONTAINER_STATE" != "up" ]]; then
             -e NETWORK="user" \
             "$(cat $COMPOSE_PATH | yq -r '.services.windows.image')"
     else
-        podman restart "$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')"
+        podman restart "$CONTAINER_NAME"
     fi
 fi
-podman ps --all --filter name="$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')"
+podman ps --all --filter name="$CONTAINER_NAME"
