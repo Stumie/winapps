@@ -67,3 +67,4 @@ function inqChkBx() {
     local SELECTED_KEYS
     # 2>&1 >/dev/tty redirects kdialog's output to be correctly captured in SELECTED_KEYS
     SELECTED_KEYS=$(kdialog --checklist "$DIALOG_TEXT" "${DIALOG_OPTIONS[@]}" 2>&1 >/dev/
+}
