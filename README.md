@@ -310,7 +310,7 @@ Install the required dependencies.
       ```bash
       echo "You're fine, everything is here. :)"
       ```
-  - Fedora/RHEL:
+  - Other, but only non-atomic Fedora/RHEL:
       ```bash
       sudo dnf install -y curl kdialog freerdp git iproute libnotify
       ```
