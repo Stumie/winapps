@@ -11,7 +11,8 @@ check-for-software-existence () {
     for i in $@
     do
     if ! command -v $i &> /dev/null; then
-        echo "ERROR: The software package '$i' is necessary but could not be found." >&2; exit 1
+        echo "ERROR: The software package '$i' is necessary but could not be found." >&2
+        exit 1
     fi
     done
 }
@@ -27,22 +28,18 @@ install-yq-into-user-directory
 readonly SCRIPT_DIR_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 readonly CONFIG_PATH="${HOME}/.config/winapps/winapps.conf"
 
-if [ -f "${HOME}/.config/winapps/compose.yaml" ]
-then
+if [ -f "${HOME}/.config/winapps/compose.yaml" ]; then
     readonly COMPOSE_PATH="${HOME}/.config/winapps/compose.yaml"
 else
     readonly COMPOSE_PATH="${SCRIPT_DIR_PATH}/compose.yaml"
 fi
 
-# Declare variables.
 CONTAINER_STATE=""
 
-# Determine the state of the container.
 CONTAINER_STATE=$(podman ps --all --filter name="$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')" --format '{{.Status}}')
-CONTAINER_STATE=${CONTAINER_STATE,,} # Convert the string to lowercase.
-CONTAINER_STATE=${CONTAINER_STATE%% *} # Extract the first word.
+CONTAINER_STATE=${CONTAINER_STATE,,}
+CONTAINER_STATE=${CONTAINER_STATE%% *}
 
-# Check container state.
 if [[ "$CONTAINER_STATE" != "up" ]]; then
     if [[ "$(podman ps --all --filter name="$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')" --format '{{.Names}}')" != "$(cat $COMPOSE_PATH | yq -r '.services.windows.container_name')" ]]; then
         winregion="${LANG%.*}"
